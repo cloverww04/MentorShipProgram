@@ -26,27 +26,27 @@ namespace MentorShipProgram
              });
 
             //seed data with categories
-            modelBuilder.Entity<Categories>().HasData(new Categories[] 
+            modelBuilder.Entity<Categories>().HasData(new Categories[]
             {
-                new Categories { CategoryId = 1, CategoryName = "Communications"},
-                new Categories { CategoryId = 2, CategoryName = "Professional Development"},
-                new Categories { CategoryId = 3, CategoryName = "Networking"},
-                new Categories { CategoryId = 4, CategoryName = "Leadership"},
-                new Categories { CategoryId = 5, CategoryName = "Career and Education Planning"}
+                new Categories { Id = 1, CategoryName = "Communications"},
+                new Categories { Id = 2, CategoryName = "Professional Development"},
+                new Categories { Id = 3, CategoryName = "Networking"},
+                new Categories { Id = 4, CategoryName = "Leadership"},
+                new Categories { Id = 5, CategoryName = "Career and Education Planning"}
             });
 
             //seed data with user 
-            modelBuilder.Entity<User>().HasData(new User[] 
+            modelBuilder.Entity<User>().HasData(new User[]
             {
                 new User { UserId = 1, FirstName = "Pam", LastName = "Carson", MentorId = 1, Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore."},
                 new User { UserId = 2, FirstName = "Austin", LastName = "Barter", MentorId = 2, Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore."},
             });
 
             //seed data with appointments
-            modelBuilder.Entity<Appointments>().HasData(new Appointments[] 
+            modelBuilder.Entity<Appointments>().HasData(new Appointments[]
             {
-                new Appointments {UserId = 1, MentorId = 1, DateTime = new DateTime(), CategoryId = 1},
-                new Appointments {UserId = 2, MentorId = 2, DateTime = new DateTime(), CategoryId = 3},
+                new Appointments { Id = 1, UserId = 1, MentorId = 1, DateTime = new DateTime(), CategoryId = 1},
+                new Appointments { Id = 2, UserId = 2, MentorId = 2, DateTime = new DateTime(), CategoryId = 3},
 
             });
         }

@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MentorShipProgram.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class IntialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,7 +16,10 @@ namespace MentorShipProgram.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    DateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MentorId = table.Column<int>(type: "integer", nullable: false),
+                    CategoryId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,7 +53,6 @@ namespace MentorShipProgram.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false),
                     CategoryName = table.Column<string>(type: "text", nullable: true),
                     AppointmentsId = table.Column<int>(type: "integer", nullable: true),
                     MentorId = table.Column<int>(type: "integer", nullable: true)
@@ -76,15 +78,21 @@ namespace MentorShipProgram.Migrations
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UID = table.Column<string>(type: "text", nullable: true),
                     FirstName = table.Column<string>(type: "text", nullable: true),
+                    UID = table.Column<string>(type: "text", nullable: true),
                     LastName = table.Column<string>(type: "text", nullable: true),
                     Bio = table.Column<string>(type: "text", nullable: true),
-                    MentorId = table.Column<int>(type: "integer", nullable: false)
+                    MentorId = table.Column<int>(type: "integer", nullable: false),
+                    AppointmentsId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_Users_Appointments_AppointmentsId",
+                        column: x => x.AppointmentsId,
+                        principalTable: "Appointments",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Users_Mentors_MentorId",
                         column: x => x.MentorId,
@@ -99,9 +107,9 @@ namespace MentorShipProgram.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MentorId = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: false),
                     CategoriesId = table.Column<int>(type: "integer", nullable: true),
-                    MentorId = table.Column<int>(type: "integer", nullable: false),
                     AppointmentsId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -123,6 +131,47 @@ namespace MentorShipProgram.Migrations
                         principalTable: "Mentors",
                         principalColumn: "MentorId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Appointments",
+                columns: new[] { "Id", "CategoryId", "DateTime", "MentorId", "UserId" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 },
+                    { 2, 3, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "Id", "AppointmentsId", "CategoryName", "MentorId" },
+                values: new object[,]
+                {
+                    { 1, null, "Communications", null },
+                    { 2, null, "Professional Development", null },
+                    { 3, null, "Networking", null },
+                    { 4, null, "Leadership", null },
+                    { 5, null, "Career and Education Planning", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Mentors",
+                columns: new[] { "MentorId", "AppointmentsId", "Bio", "FirstName", "LastName" },
+                values: new object[,]
+                {
+                    { 1, null, "I am a Product Experience Manager with extensive experience in the corporate world.", "Adonis", "Bridges" },
+                    { 2, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Michael", "Perso" },
+                    { 3, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Kai", "Okonko" },
+                    { 4, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Bri", "Karter" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "AppointmentsId", "Bio", "FirstName", "LastName", "MentorId", "UID" },
+                values: new object[,]
+                {
+                    { 1, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.", "Pam", "Carson", 1, null },
+                    { 2, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.", "Austin", "Barter", 2, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -153,6 +202,11 @@ namespace MentorShipProgram.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Mentors_AppointmentsId",
                 table: "Mentors",
+                column: "AppointmentsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_AppointmentsId",
+                table: "Users",
                 column: "AppointmentsId");
 
             migrationBuilder.CreateIndex(

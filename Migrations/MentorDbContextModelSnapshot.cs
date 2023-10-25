@@ -30,12 +30,39 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("MentorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.ToTable("Appointments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MentorId = 1,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoryId = 3,
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MentorId = 2,
+                            UserId = 2
+                        });
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Categories", b =>
@@ -47,9 +74,6 @@ namespace MentorShipProgram.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("AppointmentsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("CategoryName")
@@ -65,6 +89,33 @@ namespace MentorShipProgram.Migrations
                     b.HasIndex("MentorId");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryName = "Communications"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoryName = "Professional Development"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CategoryName = "Networking"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CategoryName = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CategoryName = "Career and Education Planning"
+                        });
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Mentor", b =>
@@ -92,6 +143,36 @@ namespace MentorShipProgram.Migrations
                     b.HasIndex("AppointmentsId");
 
                     b.ToTable("Mentors");
+
+                    b.HasData(
+                        new
+                        {
+                            MentorId = 1,
+                            Bio = "I am a Product Experience Manager with extensive experience in the corporate world.",
+                            FirstName = "Adonis",
+                            LastName = "Bridges"
+                        },
+                        new
+                        {
+                            MentorId = 2,
+                            Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            FirstName = "Michael",
+                            LastName = "Perso"
+                        },
+                        new
+                        {
+                            MentorId = 3,
+                            Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            FirstName = "Kai",
+                            LastName = "Okonko"
+                        },
+                        new
+                        {
+                            MentorId = 4,
+                            Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            FirstName = "Bri",
+                            LastName = "Karter"
+                        });
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.MentorCategories", b =>
@@ -133,6 +214,9 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
+                    b.Property<int?>("AppointmentsId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
@@ -150,9 +234,29 @@ namespace MentorShipProgram.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("AppointmentsId");
+
                     b.HasIndex("MentorId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.",
+                            FirstName = "Pam",
+                            LastName = "Carson",
+                            MentorId = 1
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.",
+                            FirstName = "Austin",
+                            LastName = "Barter",
+                            MentorId = 2
+                        });
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Categories", b =>
@@ -196,6 +300,10 @@ namespace MentorShipProgram.Migrations
 
             modelBuilder.Entity("MentorShipProgram.Models.User", b =>
                 {
+                    b.HasOne("MentorShipProgram.Models.Appointments", null)
+                        .WithMany("Users")
+                        .HasForeignKey("AppointmentsId");
+
                     b.HasOne("MentorShipProgram.Models.Mentor", "Mentor")
                         .WithMany("Users")
                         .HasForeignKey("MentorId")
@@ -212,6 +320,8 @@ namespace MentorShipProgram.Migrations
                     b.Navigation("MentorCategories");
 
                     b.Navigation("Mentors");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Mentor", b =>
