@@ -6,6 +6,7 @@
         public DateTime DateTime { get; set; }
         public ICollection<Mentor>? Mentors { get; set; }
         public ICollection<Categories>? Categories { get; set; }
+        public ICollection<MentorCategories>? MentorCategories { get; set; }
 
     }
 }
