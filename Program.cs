@@ -102,7 +102,8 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
     var appointment = await db.Appointments
         .Include(a => a.Mentors)
         .Include(a => a.Users)
-        .Include(a => a.Categories)
+        .Include(a => a.MentorCategories)
+        .ThenInclude(mc => mc.Categories)
         .FirstOrDefaultAsync(a => a.Id == id);
 
     if (appointment == null)
@@ -129,8 +130,8 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
         },
         Category = new CategoryDTO
         {
-            Id = appointment.Categories?.FirstOrDefault()?.CategoryId,
-            CategoryName = appointment.Categories?.FirstOrDefault()?.CategoryName,
+            Id = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryId,
+            CategoryName = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryName,
         }
     };
 
@@ -199,7 +200,6 @@ app.MapGet("/mentors", async (MentorDbContext db) =>
         return Results.NotFound();
     }
 
-    // Map the Mentor entities to MentorDTOs
     var mentorDTOs = mentors.Select(mentor => new MentorDTO
     {
         MentorId = mentor.MentorId,
@@ -219,14 +219,30 @@ app.MapGet("/mentors", async (MentorDbContext db) =>
 
 app.MapGet("/mentors/{id}", async (MentorDbContext db, int id) =>
 {
-    var mentor = await db.Mentors.FirstOrDefaultAsync(m => m.MentorId == id);
+    var mentor = await db.Mentors
+        .Include(mentor => mentor.MentorCategories)
+        .ThenInclude(mentor => mentor.Categories)
+        .FirstOrDefaultAsync(m => m.MentorId == id);
 
     if (mentor == null)
     {
-        Results.NotFound();
+        return Results.NotFound();
     }
 
-    return Results.Ok(mentor);
+    var mentorDTO = new MentorDTO
+    {
+        MentorId = mentor.MentorId,
+        FirstName = mentor.FirstName,
+        LastName = mentor.LastName,
+        Bio = mentor.Bio,
+        Categories = mentor.MentorCategories?.Select(category => new CategoryDTO
+        {
+            Id = category.Categories?.CategoryId,
+            CategoryName = category.Categories?.CategoryName
+        }).ToList()
+    };
+
+    return Results.Ok(mentorDTO);
 });
 
 
