@@ -1,4 +1,5 @@
 using MentorShipProgram;
+using MentorShipProgram.DTOs;
 using MentorShipProgram.Models;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
@@ -56,28 +57,87 @@ app.UseHttpsRedirection();
 // Endpoints for Appointments
 app.MapGet("/appointments", async (MentorDbContext db) =>
 {
-    var appointments = await db.Appointments.ToListAsync();
+    var appointments = await db.Appointments
+        .Include(a => a.Mentors)
+        .Include(a => a.Users)
+        .Include(a => a.MentorCategories)
+        .ThenInclude(mc => mc.Categories)
+        .ToListAsync();
 
     if (appointments == null)
     {
         return Results.NotFound();
     }
 
-    return Results.Ok(appointments);
+    var appointmentDTOs = appointments.Select(appointment => new AppointmentsDTO
+    {
+        Id = appointment.Id,
+        DateTime = appointment.DateTime,
+        User = new UserDTO
+        {
+            UserId = appointment.Users?.FirstOrDefault()?.UserId,
+            FirstName = appointment.Users?.FirstOrDefault()?.FirstName,
+            LastName = appointment.Users?.FirstOrDefault()?.LastName,
+        },
+        Mentor = new MentorDTO
+        {
+            MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
+            FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
+            LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
+        },
+        Category = new CategoryDTO
+        {
+            Id = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryId,
+            CategoryName = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryName,
+        }
+    }).ToList();
 
+    return Results.Ok(appointmentDTOs);
 });
+
+
 
 app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
 {
-    var appointment = await db.Appointments.FirstOrDefaultAsync(a => a.Id == id);
+    var appointment = await db.Appointments
+        .Include(a => a.Mentors)
+        .Include(a => a.Users)
+        .Include(a => a.Categories)
+        .FirstOrDefaultAsync(a => a.Id == id);
 
     if (appointment == null)
     {
         return Results.NotFound();
     }
 
-    return Results.Ok(appointment);
+
+    var appointmentDTO = new AppointmentsDTO
+    {
+        Id = appointment.Id,
+        DateTime = appointment.DateTime,
+        User = new UserDTO
+        {
+            UserId = appointment.Users?.FirstOrDefault()?.UserId,
+            FirstName = appointment.Users?.FirstOrDefault()?.FirstName,
+            LastName = appointment.Users?.FirstOrDefault()?.LastName,
+        },
+        Mentor = new MentorDTO
+        {
+            MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
+            FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
+            LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
+        },
+        Category = new CategoryDTO
+        {
+            Id = appointment.Categories?.FirstOrDefault()?.CategoryId,
+            CategoryName = appointment.Categories?.FirstOrDefault()?.CategoryName,
+        }
+    };
+
+    return Results.Ok(appointmentDTO);
 });
+
+
 
 app.MapPost("/appointments", (MentorDbContext db, Appointments apt) =>
 {
@@ -129,15 +189,33 @@ app.MapDelete("/appointments{id}", async (MentorDbContext db, int id) =>
 // Endpoints for Mentor
 app.MapGet("/mentors", async (MentorDbContext db) =>
 {
-    var mentors = await db.Mentors.ToListAsync();
+    var mentors = await db.Mentors
+        .Include(mentor => mentor.MentorCategories)
+        .ThenInclude(mentor => mentor.Categories)
+        .ToListAsync();
 
     if (mentors == null)
     {
         return Results.NotFound();
     }
 
-    return Results.Ok(mentors);
+    // Map the Mentor entities to MentorDTOs
+    var mentorDTOs = mentors.Select(mentor => new MentorDTO
+    {
+        MentorId = mentor.MentorId,
+        FirstName = mentor.FirstName,
+        LastName = mentor.LastName,
+        Bio = mentor.Bio,
+        Categories = mentor.MentorCategories?.Select(category => new CategoryDTO
+        {
+            Id = category.Categories?.CategoryId,
+            CategoryName = category.Categories?.CategoryName
+        }).ToList()
+    }).ToList();
+
+    return Results.Ok(mentorDTOs);
 });
+
 
 app.MapGet("/mentors/{id}", async (MentorDbContext db, int id) =>
 {

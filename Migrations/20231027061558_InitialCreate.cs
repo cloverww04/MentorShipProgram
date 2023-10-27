@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MentorShipProgram.Migrations
 {
-    public partial class IntialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,7 +51,7 @@ namespace MentorShipProgram.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    CategoryId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CategoryName = table.Column<string>(type: "text", nullable: true),
                     AppointmentsId = table.Column<int>(type: "integer", nullable: true),
@@ -59,7 +59,7 @@ namespace MentorShipProgram.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
                     table.ForeignKey(
                         name: "FK_Categories_Appointments_AppointmentsId",
                         column: x => x.AppointmentsId,
@@ -105,26 +105,25 @@ namespace MentorShipProgram.Migrations
                 name: "MentorCategories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MentorId = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: false),
-                    CategoriesId = table.Column<int>(type: "integer", nullable: true),
+                    Id = table.Column<int>(type: "integer", nullable: false),
                     AppointmentsId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MentorCategories", x => x.Id);
+                    table.PrimaryKey("PK_MentorCategories", x => new { x.MentorId, x.CategoryId });
                     table.ForeignKey(
                         name: "FK_MentorCategories_Appointments_AppointmentsId",
                         column: x => x.AppointmentsId,
                         principalTable: "Appointments",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_MentorCategories_Categories_CategoriesId",
-                        column: x => x.CategoriesId,
+                        name: "FK_MentorCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id");
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MentorCategories_Mentors_MentorId",
                         column: x => x.MentorId,
@@ -144,7 +143,7 @@ namespace MentorShipProgram.Migrations
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "AppointmentsId", "CategoryName", "MentorId" },
+                columns: new[] { "CategoryId", "AppointmentsId", "CategoryName", "MentorId" },
                 values: new object[,]
                 {
                     { 1, null, "Communications", null },
@@ -190,14 +189,9 @@ namespace MentorShipProgram.Migrations
                 column: "AppointmentsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MentorCategories_CategoriesId",
+                name: "IX_MentorCategories_CategoryId",
                 table: "MentorCategories",
-                column: "CategoriesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MentorCategories_MentorId",
-                table: "MentorCategories",
-                column: "MentorId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mentors_AppointmentsId",

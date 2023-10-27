@@ -65,13 +65,13 @@ namespace MentorShipProgram.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MentorShipProgram.Models.Categories", b =>
+            modelBuilder.Entity("MentorShipProgram.Models.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
                     b.Property<int?>("AppointmentsId")
                         .HasColumnType("integer");
@@ -82,7 +82,7 @@ namespace MentorShipProgram.Migrations
                     b.Property<int?>("MentorId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("AppointmentsId");
 
@@ -93,27 +93,27 @@ namespace MentorShipProgram.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            CategoryId = 1,
                             CategoryName = "Communications"
                         },
                         new
                         {
-                            Id = 2,
+                            CategoryId = 2,
                             CategoryName = "Professional Development"
                         },
                         new
                         {
-                            Id = 3,
+                            CategoryId = 3,
                             CategoryName = "Networking"
                         },
                         new
                         {
-                            Id = 4,
+                            CategoryId = 4,
                             CategoryName = "Leadership"
                         },
                         new
                         {
-                            Id = 5,
+                            CategoryId = 5,
                             CategoryName = "Career and Education Planning"
                         });
                 });
@@ -177,31 +177,23 @@ namespace MentorShipProgram.Migrations
 
             modelBuilder.Entity("MentorShipProgram.Models.MentorCategories", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AppointmentsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CategoriesId")
+                    b.Property<int>("MentorId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("MentorId")
+                    b.Property<int?>("AppointmentsId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MentorId", "CategoryId");
 
                     b.HasIndex("AppointmentsId");
 
-                    b.HasIndex("CategoriesId");
-
-                    b.HasIndex("MentorId");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("MentorCategories");
                 });
@@ -259,7 +251,7 @@ namespace MentorShipProgram.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MentorShipProgram.Models.Categories", b =>
+            modelBuilder.Entity("MentorShipProgram.Models.Category", b =>
                 {
                     b.HasOne("MentorShipProgram.Models.Appointments", null)
                         .WithMany("Categories")
@@ -283,9 +275,11 @@ namespace MentorShipProgram.Migrations
                         .WithMany("MentorCategories")
                         .HasForeignKey("AppointmentsId");
 
-                    b.HasOne("MentorShipProgram.Models.Categories", "Categories")
-                        .WithMany()
-                        .HasForeignKey("CategoriesId");
+                    b.HasOne("MentorShipProgram.Models.Category", "Categories")
+                        .WithMany("MentorCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MentorShipProgram.Models.Mentor", "Mentor")
                         .WithMany("MentorCategories")
@@ -322,6 +316,11 @@ namespace MentorShipProgram.Migrations
                     b.Navigation("Mentors");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("MentorShipProgram.Models.Category", b =>
+                {
+                    b.Navigation("MentorCategories");
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Mentor", b =>

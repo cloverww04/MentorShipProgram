@@ -8,7 +8,7 @@ namespace MentorShipProgram
         public DbSet<User>? Users { get; set; }
         public DbSet<Mentor>? Mentors { get; set; }
         public DbSet<Appointments>? Appointments { get; set; }
-        public DbSet<Categories>? Categories { get; set; }
+        public DbSet<Category>? Categories { get; set; }
         public DbSet<MentorCategories>? MentorCategories { get; set; }
 
         public MentorDbContext(DbContextOptions<MentorDbContext> context) : base(context) { }
@@ -26,13 +26,13 @@ namespace MentorShipProgram
              });
 
             //seed data with categories
-            modelBuilder.Entity<Categories>().HasData(new Categories[]
+            modelBuilder.Entity<Category>().HasData(new Category[]
             {
-                new Categories { Id = 1, CategoryName = "Communications"},
-                new Categories { Id = 2, CategoryName = "Professional Development"},
-                new Categories { Id = 3, CategoryName = "Networking"},
-                new Categories { Id = 4, CategoryName = "Leadership"},
-                new Categories { Id = 5, CategoryName = "Career and Education Planning"}
+                new Category { CategoryId = 1, CategoryName = "Communications"},
+                new Category { CategoryId = 2, CategoryName = "Professional Development"},
+                new Category { CategoryId = 3, CategoryName = "Networking"},
+                new Category { CategoryId = 4, CategoryName = "Leadership"},
+                new Category { CategoryId = 5, CategoryName = "Career and Education Planning"}
             });
 
             //seed data with user 
@@ -49,6 +49,20 @@ namespace MentorShipProgram
                 new Appointments { Id = 2, UserId = 2, MentorId = 2, DateTime = new DateTime(), CategoryId = 3},
 
             });
+
+            modelBuilder.Entity<MentorCategories>()
+                .HasKey(mc => new { mc.MentorId, mc.CategoryId });
+
+            modelBuilder.Entity<MentorCategories>()
+                .HasOne(mc => mc.Mentor)
+                .WithMany(mentor => mentor.MentorCategories)
+                .HasForeignKey(mc => mc.MentorId);
+
+            modelBuilder.Entity<MentorCategories>()
+                .HasOne(mc => mc.Categories)
+                .WithMany(category => category.MentorCategories)
+                .HasForeignKey(mc => mc.CategoryId);
+
         }
 
     }

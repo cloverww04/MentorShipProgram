@@ -7,7 +7,7 @@
         public string? LastName { get; set; }
         public string? Bio { get; set; }
         public ICollection<User>? Users { get; set; }
-        public ICollection<Categories> Categories { get; set; }
+        public ICollection<Category> Categories { get; set; }
         public ICollection<MentorCategories>? MentorCategories { get; set; }
     }
 }

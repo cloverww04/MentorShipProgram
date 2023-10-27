@@ -7,7 +7,7 @@
         public Mentor? Mentor { get; set; }
 
         public int CategoryId { get; set; }
-        public Categories? Categories { get; set; }
+        public Category? Categories { get; set; }
     }
 }
 
