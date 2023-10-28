@@ -60,9 +60,10 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
     var appointments = await db.Appointments
         .Include(a => a.Mentors)
         .Include(a => a.Users)
-        .Include(a => a.MentorCategories)
-        .ThenInclude(mc => mc.Categories)
+        .Include(a => a.Categories)
         .ToListAsync();
+
+    var firstCategoryId = appointments.FirstOrDefault()?.CategoryId;
 
     if (appointments == null)
     {
@@ -87,8 +88,11 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
         },
         Category = new CategoryDTO
         {
-            Id = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryId,
-            CategoryName = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryName,
+            Id = appointment.CategoryId,
+            CategoryName = db.Categories
+                    .Where(c => c.CategoryId == appointment.CategoryId)
+                    .Select(c => c.CategoryName)
+                    .FirstOrDefault(),
         }
     }).ToList();
 
@@ -102,8 +106,7 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
     var appointment = await db.Appointments
         .Include(a => a.Mentors)
         .Include(a => a.Users)
-        .Include(a => a.MentorCategories)
-        .ThenInclude(mc => mc.Categories)
+        .Include(mc => mc.Categories)
         .FirstOrDefaultAsync(a => a.Id == id);
 
     if (appointment == null)
@@ -130,8 +133,8 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
         },
         Category = new CategoryDTO
         {
-            Id = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryId,
-            CategoryName = appointment.MentorCategories?.FirstOrDefault()?.Categories?.CategoryName,
+            Id = appointment.Categories?.FirstOrDefault()?.CategoryId,
+            CategoryName = appointment.Categories?.FirstOrDefault()?.CategoryName,
         }
     };
 
@@ -308,6 +311,35 @@ app.MapPut("/users/{id}", async (MentorDbContext db, int id, User user) =>
 
 
 // add category to mentor
+app.MapGet("/mentor/categories", async (MentorDbContext db) =>
+{
+    var mentorCat = await db.MentorCategories
+    .Include(mc => mc.Mentor)
+    .Include(mc => mc.Categories)
+    .ToListAsync();
+
+    if (mentorCat == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(mentorCat);
+});
+
+app.MapGet("/mentor/categories/{mentorId}", (MentorDbContext db, int mentId) =>
+{
+    var mentorCat = db.MentorCategories
+    .Include(mc => mc.Mentor)
+    .Include(mc => mc.Categories)
+    .SingleOrDefault(mc => mc.MentorId == mentId);
+
+    if (mentorCat == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(mentorCat);
+});
 app.MapPost("/mentor/categories/{mentorId}/{catId}", (MentorDbContext db, int mentorId, int catId) =>
 {
     var mentorCat = db.MentorCategories
