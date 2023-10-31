@@ -63,8 +63,6 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
         .Include(a => a.Categories)
         .ToListAsync();
 
-    var firstCategoryId = appointments.FirstOrDefault()?.CategoryId;
-
     if (appointments == null)
     {
         return Results.NotFound();
@@ -85,14 +83,6 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
             MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
             FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
             LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
-        },
-        Category = new CategoryDTO
-        {
-            Id = appointment.CategoryId,
-            CategoryName = db.Categories
-                    .Where(c => c.CategoryId == appointment.CategoryId)
-                    .Select(c => c.CategoryName)
-                    .FirstOrDefault(),
         }
     }).ToList();
 
@@ -130,11 +120,6 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
             MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
             FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
             LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
-        },
-        Category = new CategoryDTO
-        {
-            Id = appointment.Categories?.FirstOrDefault()?.CategoryId,
-            CategoryName = appointment.Categories?.FirstOrDefault()?.CategoryName,
         }
     };
 
@@ -167,7 +152,6 @@ app.MapPut("/appointments/{id}", async (MentorDbContext db, int id, Appointments
     }
 
     appointmentToUpdate.Mentors = apt.Mentors;
-    appointmentToUpdate.Categories = apt.Categories;
     appointmentToUpdate.DateTime = apt.DateTime;
 
     db.SaveChangesAsync();
@@ -340,6 +324,7 @@ app.MapGet("/mentor/categories/{mentorId}", (MentorDbContext db, int mentId) =>
 
     return Results.Ok(mentorCat);
 });
+
 app.MapPost("/mentor/categories/{mentorId}/{catId}", (MentorDbContext db, int mentorId, int catId) =>
 {
     var mentorCat = db.MentorCategories
@@ -358,7 +343,6 @@ app.MapPost("/mentor/categories/{mentorId}/{catId}", (MentorDbContext db, int me
 
 
 // Check if user exists
-
 app.MapGet("/api/checkuser/{uid}", (MentorDbContext db, string uid) =>
 {
     var userExists = db.Users.Where(x => x.UID == uid).FirstOrDefault();

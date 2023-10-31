@@ -6,6 +6,5 @@
         public DateTime DateTime { get; set; }
         public UserDTO? User { get; set; }
         public MentorDTO? Mentor { get; set; }
-        public CategoryDTO? Category { get; set; }
     }
 }

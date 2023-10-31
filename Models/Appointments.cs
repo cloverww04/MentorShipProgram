@@ -9,7 +9,6 @@
         public ICollection<User>? Users { get; set; }
         public int UserId { get; set; }
         public int MentorId { get; set; }
-        public int CategoryId { get; set; }
         public ICollection<MentorCategories>? MentorCategories { get; set; }
 
     }

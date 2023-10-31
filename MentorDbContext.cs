@@ -45,8 +45,8 @@ namespace MentorShipProgram
             //seed data with appointments
             modelBuilder.Entity<Appointments>().HasData(new Appointments[]
             {
-                new Appointments { Id = 1, UserId = 1, MentorId = 1, DateTime = new DateTime(), CategoryId = 1},
-                new Appointments { Id = 2, UserId = 2, MentorId = 2, DateTime = new DateTime(), CategoryId = 3},
+                new Appointments { Id = 1, UserId = 1, MentorId = 1, DateTime = new DateTime()},
+                new Appointments { Id = 2, UserId = 2, MentorId = 2, DateTime = new DateTime()},
 
             });
 
