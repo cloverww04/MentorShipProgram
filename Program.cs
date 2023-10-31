@@ -58,8 +58,8 @@ app.UseHttpsRedirection();
 app.MapGet("/appointments", async (MentorDbContext db) =>
 {
     var appointments = await db.Appointments
-        .Include(a => a.Mentors)
-        .Include(a => a.Users)
+        .Include(a => a.Mentor)
+        .Include(a => a.User)
         .Include(a => a.Categories)
         .ToListAsync();
 
@@ -74,15 +74,15 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
         DateTime = appointment.DateTime,
         User = new UserDTO
         {
-            UserId = appointment.Users?.FirstOrDefault()?.UserId,
-            FirstName = appointment.Users?.FirstOrDefault()?.FirstName,
-            LastName = appointment.Users?.FirstOrDefault()?.LastName,
+            UserId = appointment.User?.UserId,
+            FirstName = appointment.User?.FirstName,
+            LastName = appointment.User?.LastName,
         },
         Mentor = new MentorDTO
         {
-            MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
-            FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
-            LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
+            MentorId = appointment.Mentor?.MentorId,
+            FirstName = appointment.Mentor?.FirstName,
+            LastName = appointment.Mentor?.LastName,
         }
     }).ToList();
 
@@ -94,8 +94,8 @@ app.MapGet("/appointments", async (MentorDbContext db) =>
 app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
 {
     var appointment = await db.Appointments
-        .Include(a => a.Mentors)
-        .Include(a => a.Users)
+        .Include(a => a.Mentor)
+        .Include(a => a.User)
         .Include(mc => mc.Categories)
         .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -111,15 +111,15 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
         DateTime = appointment.DateTime,
         User = new UserDTO
         {
-            UserId = appointment.Users?.FirstOrDefault()?.UserId,
-            FirstName = appointment.Users?.FirstOrDefault()?.FirstName,
-            LastName = appointment.Users?.FirstOrDefault()?.LastName,
+            UserId = appointment.User?.UserId,
+            FirstName = appointment.User?.FirstName,
+            LastName = appointment.User?.LastName,
         },
         Mentor = new MentorDTO
         {
-            MentorId = appointment.Mentors?.FirstOrDefault()?.MentorId,
-            FirstName = appointment.Mentors?.FirstOrDefault()?.FirstName,
-            LastName = appointment.Mentors?.FirstOrDefault()?.LastName,
+            MentorId = appointment.Mentor?.MentorId,
+            FirstName = appointment.Mentor?.FirstName,
+            LastName = appointment.Mentor?.LastName,
         }
     };
 
@@ -128,19 +128,34 @@ app.MapGet("/appointments/{id}", async (MentorDbContext db, int id) =>
 
 
 
-app.MapPost("/appointments", (MentorDbContext db, Appointments apt) =>
+app.MapPost("/appointments", async (MentorDbContext db, Appointments apt) =>
 {
     try
     {
-        db.Add(apt);
-        db.SaveChanges();
-        return Results.Created($"/appointments/{apt.Id}", apt);
+        var mentor = await db.Mentors.FirstOrDefaultAsync(m => m.MentorId == apt.MentorId);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.UserId == apt.UserId);
+
+        if (mentor != null && user != null)
+        {
+            apt.Mentor = mentor;
+            apt.User = user;
+
+            await db.AddAsync(apt);
+            await db.SaveChangesAsync();
+
+            return Results.Created($"/appointments/{apt.Id}", apt);
+        }
+        else
+        {
+            return Results.BadRequest("Invalid mentorId or userId");
+        }
     }
     catch (Exception ex)
     {
         return Results.BadRequest(ex);
     }
 });
+
 
 app.MapPut("/appointments/{id}", async (MentorDbContext db, int id, Appointments apt) =>
 {
@@ -151,7 +166,7 @@ app.MapPut("/appointments/{id}", async (MentorDbContext db, int id, Appointments
         return Results.NotFound();
     }
 
-    appointmentToUpdate.Mentors = apt.Mentors;
+    appointmentToUpdate.Mentor = apt.Mentor;
     appointmentToUpdate.DateTime = apt.DateTime;
 
     await db.SaveChangesAsync();
@@ -325,18 +340,18 @@ app.MapGet("/mentor/categories/{mentorId}", (MentorDbContext db, int mentId) =>
     return Results.Ok(mentorCat);
 });
 
-app.MapPost("/mentor/categories/{mentorId}/{catId}", (MentorDbContext db, int mentorId, int catId) =>
+app.MapPost("/mentor/categories/{mentorId}/{catId}", async (MentorDbContext db, int mentorId, int catId) =>
 {
-    var mentorCat = db.MentorCategories
-    .SingleOrDefault(mc => mc.MentorId == mentorId && mc.CategoryId == catId);
+    var mentorCat = await db.MentorCategories
+    .SingleOrDefaultAsync(mc => mc.MentorId == mentorId && mc.CategoryId == catId);
 
     if (mentorCat == null)
     {
         return Results.NotFound();
     }
 
-    db.MentorCategories.Add(mentorCat);
-    db.SaveChanges();
+    await db.MentorCategories.AddAsync(mentorCat);
+    await db.SaveChangesAsync();
 
     return Results.Ok(mentorCat);
 });

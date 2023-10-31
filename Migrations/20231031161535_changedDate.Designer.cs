@@ -3,6 +3,7 @@ using System;
 using MentorShipProgram;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MentorShipProgram.Migrations
 {
     [DbContext(typeof(MentorDbContext))]
-    partial class MentorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231031161535_changedDate")]
+    partial class changedDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,14 +54,14 @@ namespace MentorShipProgram.Migrations
                         new
                         {
                             Id = 1,
-                            DateTime = "2023-11-02T10:00",
+                            DateTime = "2023/11/01 10:00AM",
                             MentorId = 1,
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            DateTime = "2023-10-31T13:00",
+                            DateTime = "2023/10/31 12:00PM",
                             MentorId = 2,
                             UserId = 2
                         });

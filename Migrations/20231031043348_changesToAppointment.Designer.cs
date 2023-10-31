@@ -3,6 +3,7 @@ using System;
 using MentorShipProgram;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,13 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MentorShipProgram.Migrations
 {
     [DbContext(typeof(MentorDbContext))]
-    partial class MentorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231031043348_changesToAppointment")]
+    partial class changesToAppointment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.13")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -30,8 +32,8 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("DateTime")
-                        .HasColumnType("text");
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("MentorId")
                         .HasColumnType("integer");
@@ -51,14 +53,14 @@ namespace MentorShipProgram.Migrations
                         new
                         {
                             Id = 1,
-                            DateTime = "2023-11-02T10:00",
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             MentorId = 1,
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            DateTime = "2023-10-31T13:00",
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             MentorId = 2,
                             UserId = 2
                         });
@@ -125,6 +127,9 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MentorId"));
 
+                    b.Property<int?>("AppointmentsId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
@@ -135,6 +140,8 @@ namespace MentorShipProgram.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("MentorId");
+
+                    b.HasIndex("AppointmentsId");
 
                     b.ToTable("Mentors");
 
@@ -200,6 +207,9 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
+                    b.Property<int?>("AppointmentsId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
@@ -216,6 +226,8 @@ namespace MentorShipProgram.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("AppointmentsId");
 
                     b.HasIndex("MentorId");
 
@@ -270,6 +282,13 @@ namespace MentorShipProgram.Migrations
                         .HasForeignKey("MentorId");
                 });
 
+            modelBuilder.Entity("MentorShipProgram.Models.Mentor", b =>
+                {
+                    b.HasOne("MentorShipProgram.Models.Appointments", null)
+                        .WithMany("Mentors")
+                        .HasForeignKey("AppointmentsId");
+                });
+
             modelBuilder.Entity("MentorShipProgram.Models.MentorCategories", b =>
                 {
                     b.HasOne("MentorShipProgram.Models.Appointments", null)
@@ -295,6 +314,10 @@ namespace MentorShipProgram.Migrations
 
             modelBuilder.Entity("MentorShipProgram.Models.User", b =>
                 {
+                    b.HasOne("MentorShipProgram.Models.Appointments", null)
+                        .WithMany("Users")
+                        .HasForeignKey("AppointmentsId");
+
                     b.HasOne("MentorShipProgram.Models.Mentor", "Mentor")
                         .WithMany("Users")
                         .HasForeignKey("MentorId")
@@ -309,6 +332,10 @@ namespace MentorShipProgram.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("MentorCategories");
+
+                    b.Navigation("Mentors");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("MentorShipProgram.Models.Category", b =>

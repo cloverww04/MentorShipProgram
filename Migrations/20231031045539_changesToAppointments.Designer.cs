@@ -3,6 +3,7 @@ using System;
 using MentorShipProgram;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,13 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MentorShipProgram.Migrations
 {
     [DbContext(typeof(MentorDbContext))]
-    partial class MentorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231031045539_changesToAppointments")]
+    partial class changesToAppointments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.13")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -30,8 +32,8 @@ namespace MentorShipProgram.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("DateTime")
-                        .HasColumnType("text");
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("MentorId")
                         .HasColumnType("integer");
@@ -51,14 +53,14 @@ namespace MentorShipProgram.Migrations
                         new
                         {
                             Id = 1,
-                            DateTime = "2023-11-02T10:00",
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             MentorId = 1,
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            DateTime = "2023-10-31T13:00",
+                            DateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             MentorId = 2,
                             UserId = 2
                         });
