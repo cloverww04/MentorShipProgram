@@ -133,8 +133,8 @@ app.MapPost("/appointments", (MentorDbContext db, Appointments apt) =>
     try
     {
         db.Add(apt);
-        db.SaveChangesAsync();
-        return Results.Created($"/appointments{apt.Id}", apt);
+        db.SaveChanges();
+        return Results.Created($"/appointments/{apt.Id}", apt);
     }
     catch (Exception ex)
     {
@@ -154,7 +154,7 @@ app.MapPut("/appointments/{id}", async (MentorDbContext db, int id, Appointments
     appointmentToUpdate.Mentors = apt.Mentors;
     appointmentToUpdate.DateTime = apt.DateTime;
 
-    db.SaveChangesAsync();
+    await db.SaveChangesAsync();
     return Results.Ok(appointmentToUpdate);
 });
 
