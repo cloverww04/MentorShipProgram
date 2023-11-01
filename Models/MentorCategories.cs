@@ -8,6 +8,9 @@
 
         public int CategoryId { get; set; }
         public Category? Categories { get; set; }
+
+        public int? AppointmentsId { get; set; }
+        public Appointments? Appointments { get; set; }
     }
 }
 

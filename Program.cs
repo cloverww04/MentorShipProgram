@@ -173,19 +173,31 @@ app.MapPut("/appointments/{id}", async (MentorDbContext db, int id, Appointments
     return Results.Ok(appointmentToUpdate);
 });
 
-app.MapDelete("/appointments{id}", async (MentorDbContext db, int id) =>
+app.MapDelete("/appointments/{id}", async (MentorDbContext db, int id) =>
 {
-    Appointments apt = await db.Appointments.FirstOrDefaultAsync(a => a.Id == id);
+    Appointments apt = await db.Appointments.SingleOrDefaultAsync(a => a.Id == id);
 
     if (apt == null)
     {
         return Results.NotFound();
     }
 
+    var mentorCategoryRecords = await db.MentorCategories
+        .Where(mc => mc.AppointmentsId == id)
+        .ToListAsync();
+
+    foreach (var mentorCategory in mentorCategoryRecords)
+    {
+        mentorCategory.AppointmentsId = null;
+    }
+
     db.Remove(apt);
-    db.SaveChangesAsync();
+
+    await db.SaveChangesAsync();
+
     return Results.NoContent();
 });
+
 
 
 
